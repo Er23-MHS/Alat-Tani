@@ -1,0 +1,910 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AlatTani - Marketplace Penyewaan Alat & Mesin Pertanian (Shopee Style)</title>
+    <meta name="description" content="Platform e-commerce sewa alat pertanian terdepan. Hubungkan petani dengan pemilik alat & kelompok tani untuk sewa traktor, pompa air, cultivator & harvester." />
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌾</text></svg>" />
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- React 18, ReactDOM & Babel CDNs -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+      /* AlatTani Marketplace Design System */
+      :root {
+        --primary: #15803d;
+        --primary-hover: #166534;
+        --primary-light: #f0fdf4;
+        --accent: #ea580c;
+        --accent-hover: #c2410c;
+        --accent-light: #fff7ed;
+        --bg-main: #f8fafc;
+        --bg-card: #ffffff;
+        --text-main: #0f172a;
+        --text-muted: #64748b;
+        --border-color: #e2e8f0;
+        --radius-md: 10px;
+        --radius-lg: 16px;
+        --radius-full: 9999px;
+        --font-sans: 'Plus Jakarta Sans', system-ui, sans-serif;
+      }
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body { font-family: var(--font-sans); background-color: var(--bg-main); color: var(--text-main); line-height: 1.5; -webkit-font-smoothing: antialiased; }
+      
+      /* Layout & Utilities */
+      .app-container { min-height: 100vh; display: flex; flex-direction: column; }
+      .main-content { flex: 1; max-width: 1280px; width: 100%; margin: 0 auto; padding: 1.5rem 1rem; }
+      .btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.625rem 1.25rem; font-family: var(--font-sans); font-size: 0.875rem; font-weight: 600; border-radius: var(--radius-md); border: 1px solid transparent; cursor: pointer; transition: all 0.2s ease; white-space: nowrap; }
+      .btn-primary { background-color: var(--primary); color: white; }
+      .btn-primary:hover { background-color: var(--primary-hover); box-shadow: 0 4px 12px rgba(21, 128, 61, 0.25); }
+      .btn-accent { background-color: var(--accent); color: white; }
+      .btn-accent:hover { background-color: var(--accent-hover); box-shadow: 0 4px 12px rgba(234, 88, 12, 0.25); }
+      .btn-outline { background-color: white; border-color: var(--border-color); color: var(--text-main); }
+      .btn-outline:hover { background-color: #f1f5f9; }
+      .btn-secondary { background-color: var(--primary-light); color: var(--primary); }
+      .btn-secondary:hover { background-color: #dcfce7; }
+      .btn-sm { padding: 0.375rem 0.75rem; font-size: 0.8125rem; }
+      .btn-lg { padding: 0.875rem 1.75rem; font-size: 1rem; }
+      
+      .card { background-color: var(--bg-card); border-radius: var(--radius-md); border: 1px solid var(--border-color); box-shadow: 0 1px 3px rgba(0,0,0,0.05); overflow: hidden; }
+      .card-hover:hover { transform: translateY(-3px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+      
+      .modal-overlay { position: fixed; inset: 0; background-color: rgba(15, 23, 42, 0.65); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; padding: 1rem; z-index: 1000; }
+      .modal-content { background-color: white; border-radius: var(--radius-lg); max-width: 650px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); position: relative; }
+      
+      .toast-container { position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 1100; display: flex; flex-direction: column; gap: 0.5rem; }
+      .toast { background-color: #0f172a; color: white; padding: 0.875rem 1.25rem; border-radius: var(--radius-md); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.2); display: flex; align-items: center; gap: 0.75rem; font-size: 0.875rem; font-weight: 500; }
+      .flex-between { display: flex; align-items: center; justify-content: space-between; }
+      .flex-center { display: flex; align-items: center; justify-content: center; }
+      .text-primary { color: var(--primary); }
+      .text-accent { color: var(--accent); }
+      .text-muted { color: var(--text-muted); }
+      .font-bold { font-weight: 700; }
+      
+      /* Responsive Tables & Form Inputs */
+      .table-responsive { overflow-x: auto; }
+      .seller-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; text-align: left; }
+      .seller-table th { background: #f8fafc; padding: 0.75rem 1rem; color: #475569; font-weight: 700; border-bottom: 2px solid #e2e8f0; }
+      .seller-table td { padding: 0.85rem 1rem; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+      
+      .form-group { display: flex; flex-direction: column; gap: 0.35rem; }
+      .form-group label { font-size: 0.8rem; font-weight: 600; color: #475569; }
+      .form-input, .form-textarea { width: 100%; padding: 0.6rem 0.85rem; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 0.875rem; outline: none; }
+      .form-input:focus, .form-textarea:focus { border-color: #16a34a; box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.15); }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+      // --- DATA MOCK MARKETPLACE ALATTANI ---
+      const INITIAL_CATEGORIES = [
+        { id: 'all', name: 'Semua Alat', icon: '🌾' },
+        { id: 'pengolah-tanah', name: 'Pengolah Tanah', icon: '🚜' },
+        { id: 'irigasi-pompa', name: 'Irigasi & Pompa', icon: '💧' },
+        { id: 'semprot-perawatan', name: 'Semprot & Perawatan', icon: '💨' },
+        { id: 'panen-tanam', name: 'Mesin Panen & Tanam', icon: '🌾' },
+        { id: 'pasca-panen', name: 'Pasca Panen', icon: '⚙️' },
+      ];
+
+      const INITIAL_PRODUCTS = [
+        {
+          id: 'prod-1',
+          name: 'Traktor Roda 4 Kubota L5018 (50 HP)',
+          category: 'pengolah-tanah',
+          pricePerDay: 450000,
+          unit: 'hari',
+          image: 'https://images.unsplash.com/photo-1592982537447-7440770cbfc9?auto=format&fit=crop&w=800&q=80',
+          status: 'Tersedia',
+          rating: 4.9,
+          rentedCount: 38,
+          storeName: 'Kelompok Tani Makmur Sembada',
+          location: 'Sleman, DI Yogyakarta',
+          specifications: [
+            { label: 'Kapasitas Mesin', value: '50 HP Direct Injection' },
+            { label: 'Bahan Bakar', value: 'Solar (B35)' },
+            { label: 'Perlengkapan', value: 'Rotary Tiller 1.8m + Disc Plow' }
+          ],
+          description: 'Traktor bertenaga besar cocok untuk pembukaan lahan baru dan pengolahan tanah sawah maupun ladang dengan luas > 1 hektar. Terawat rutin.'
+        },
+        {
+          id: 'prod-2',
+          name: 'Hand Traktor Quick G1000 Boxer (Mesin Kubota)',
+          category: 'pengolah-tanah',
+          pricePerDay: 175000,
+          unit: 'hari',
+          image: 'https://images.unsplash.com/photo-1530507629858-e4977d30e9e0?auto=format&fit=crop&w=800&q=80',
+          status: 'Tersedia',
+          rating: 4.8,
+          rentedCount: 64,
+          storeName: 'Kelompok Tani Makmur Sembada',
+          location: 'Sleman, DI Yogyakarta',
+          specifications: [
+            { label: 'Mesin', value: 'Kubota RD 85 DI-1S' },
+            { label: 'Bahan Bakar', value: 'Solar' },
+            { label: 'Kelengkapan', value: 'Roda Besi Standard + Bajak Parabola' }
+          ],
+          description: 'Hand traktor tangguh favorit petani untuk membajak sawah basah dan becek. Sangat lincah dan hemat bahan bakar.'
+        },
+        {
+          id: 'prod-3',
+          name: 'Cultivator Honda F220 (Mesin Mini Tiller)',
+          category: 'pengolah-tanah',
+          pricePerDay: 120000,
+          unit: 'hari',
+          image: 'https://images.unsplash.com/photo-1574943320219-553eb213f72d?auto=format&fit=crop&w=800&q=80',
+          status: 'Dipinjam',
+          rating: 4.7,
+          rentedCount: 42,
+          storeName: 'UD Alsintan Jaya Mandiri',
+          location: 'Bantul, DI Yogyakarta',
+          specifications: [
+            { label: 'Mesin', value: 'Honda GXV57 4-stroke' },
+            { label: 'Bahan Bakar', value: 'Bensin Pertalite' }
+          ],
+          description: 'Mesin penyiang gulma dan pembuat bedengan ideal untuk perkebunan hortikultura, sayuran, dan ladang jagung.'
+        },
+        {
+          id: 'prod-4',
+          name: 'Mesin Pompa Air Honda WB30XT 3 Inch (Bensin)',
+          category: 'irigasi-pompa',
+          pricePerDay: 90000,
+          unit: 'hari',
+          image: 'https://images.unsplash.com/photo-1541888946425-d0fbb186a5b3?auto=format&fit=crop&w=800&q=80',
+          status: 'Tersedia',
+          rating: 4.9,
+          rentedCount: 89,
+          storeName: 'Kelompok Tani Makmur Sembada',
+          location: 'Sleman, DI Yogyakarta',
+          specifications: [
+            { label: 'Diameter Hisap/Buang', value: '3 inchi (80 mm)' },
+            { label: 'Kapasitas Pompa', value: '1.100 Liter / menit' }
+          ],
+          description: 'Pompa air irigasi sawah bertekanan tinggi. Sangat cocok untuk pengairan musim kemarau dan pengeringan genangan.'
+        },
+        {
+          id: 'prod-5',
+          name: 'Drone Sprayer Pertanian DJI Agras T30 (30L)',
+          category: 'semprot-perawatan',
+          pricePerDay: 650000,
+          unit: 'hari',
+          image: 'https://images.unsplash.com/photo-1508614589041-895b88991e3e?auto=format&fit=crop&w=800&q=80',
+          status: 'Tersedia',
+          rating: 5.0,
+          rentedCount: 19,
+          storeName: 'Poktan Subur Jaya',
+          location: 'Kulon Progo, DI Yogyakarta',
+          specifications: [
+            { label: 'Kapasitas Tangki', value: '30 Liter' },
+            { label: 'Cakupan Semprot', value: '16-20 Hektar / hari' }
+          ],
+          description: 'Penyemprotan pupuk cair dan pestisida ultra cepat menggunakan teknologi Drone radar canggih. Presisi dan hemat bahan kimia.'
+        },
+        {
+          id: 'prod-6',
+          name: 'Mesin Panen Combine Harvester Yanmar YH850',
+          category: 'panen-tanam',
+          pricePerDay: 850000,
+          unit: 'hari',
+          image: 'https://images.unsplash.com/photo-1595246140625-573b715d11dc?auto=format&fit=crop&w=800&q=80',
+          status: 'Dipinjam',
+          rating: 4.9,
+          rentedCount: 27,
+          storeName: 'Kelompok Tani Makmur Sembada',
+          location: 'Sleman, DI Yogyakarta',
+          specifications: [
+            { label: 'Mesin', value: 'Yanmar 85 HP Diesel' },
+            { label: 'Lebar Potong', value: '2.1 Meter' }
+          ],
+          description: 'Mesin potong, rontok, dan pengarungan padi sekaligus secara otomatis. Mengurangi susut panen hingga < 2%.'
+        }
+      ];
+
+      const INITIAL_ORDERS = [
+        {
+          id: 'ORD-20260812-001',
+          productName: 'Cultivator Honda F220 (Mesin Mini Tiller)',
+          productImage: 'https://images.unsplash.com/photo-1574943320219-553eb213f72d?auto=format&fit=crop&w=800&q=80',
+          renterName: 'Pak Sukirman (Petani Cabai)',
+          renterPhone: '0812-3456-7890',
+          storeName: 'UD Alsintan Jaya Mandiri',
+          startDate: '2026-08-12',
+          endDate: '2026-08-14',
+          daysCount: 2,
+          totalPrice: 260000,
+          deliveryMethod: 'Diantar ke Lahan',
+          deliveryAddress: 'Lahan Cabai Dusun Candipari, Kalitirto, Berbah',
+          paymentMethod: 'Transfer Bank BRI',
+          status: 'Sedang Disewa',
+          createdAt: '2026-08-12 10:30'
+        },
+        {
+          id: 'ORD-20260810-002',
+          productName: 'Traktor Roda 4 Kubota L5018 (50 HP)',
+          productImage: 'https://images.unsplash.com/photo-1592982537447-7440770cbfc9?auto=format&fit=crop&w=800&q=80',
+          renterName: 'Pak Mulyono',
+          renterPhone: '0813-9988-7766',
+          storeName: 'Kelompok Tani Makmur Sembada',
+          startDate: '2026-08-05',
+          endDate: '2026-08-07',
+          daysCount: 2,
+          totalPrice: 930000,
+          deliveryMethod: 'Diantar ke Lahan',
+          deliveryAddress: 'Lahan Tebu Medari, Caturharjo, Sleman',
+          paymentMethod: 'Transfer Bank Mandiri',
+          status: 'Selesai',
+          createdAt: '2026-08-03 16:45'
+        }
+      ];
+
+      // --- MAIN REACT APPLICATION ---
+      function AlatTaniApp() {
+        const [activeRole, setActiveRole] = React.useState(() => localStorage.getItem('alattani_role') || 'renter');
+        const [currentView, setCurrentView] = React.useState(() => activeRole === 'seller' ? 'seller-dashboard' : 'home');
+        const [products, setProducts] = React.useState(() => {
+          const saved = localStorage.getItem('alattani_products');
+          return saved ? JSON.parse(saved) : INITIAL_PRODUCTS;
+        });
+        const [orders, setOrders] = React.useState(() => {
+          const saved = localStorage.getItem('alattani_orders');
+          return saved ? JSON.parse(saved) : INITIAL_ORDERS;
+        });
+        const [cart, setCart] = React.useState([]);
+        const [selectedCategory, setSelectedCategory] = React.useState('all');
+        const [searchQuery, setSearchQuery] = React.useState('');
+        const [selectedProdModal, setSelectedProdModal] = React.useState(null);
+        const [selectedInvoice, setSelectedInvoice] = React.useState(null);
+        const [showAddProductModal, setShowAddProductModal] = React.useState(false);
+        const [toastMsg, setToastMsg] = React.useState('');
+        
+        // Seller Active Tab
+        const [sellerTab, setSellerTab] = React.useState('orders');
+
+        // Form state for checkout
+        const [renterName, setRenterName] = React.useState('Pak Slamet (Petani Padi)');
+        const [renterPhone, setRenterPhone] = React.useState('0813-2456-7890');
+        const [landAddress, setLandAddress] = React.useState('Lahan Sawahluhur RT 02/05, Desa Widodomartani, Ngemplak');
+        const [deliveryMethod, setDeliveryMethod] = React.useState('Diantar ke Lahan');
+        const [paymentMethod, setPaymentMethod] = React.useState('Transfer Bank BRI');
+
+        // Form state for add product
+        const [newProdName, setNewProdName] = React.useState('');
+        const [newProdCat, setNewProdCat] = React.useState('pengolah-tanah');
+        const [newProdPrice, setNewProdPrice] = React.useState(150000);
+        const [newProdImg, setNewProdImg] = React.useState('https://images.unsplash.com/photo-1592982537447-7440770cbfc9?auto=format&fit=crop&w=800&q=80');
+
+        React.useEffect(() => {
+          localStorage.setItem('alattani_role', activeRole);
+        }, [activeRole]);
+
+        React.useEffect(() => {
+          localStorage.setItem('alattani_products', JSON.stringify(products));
+        }, [products]);
+
+        React.useEffect(() => {
+          localStorage.setItem('alattani_orders', JSON.stringify(orders));
+        }, [orders]);
+
+        const showToast = (msg) => {
+          setToastMsg(msg);
+          setTimeout(() => setToastMsg(''), 3500);
+        };
+
+        const handleAddToCart = (prod) => {
+          setCart([...cart, { product: prod, days: 2, totalPrice: prod.pricePerDay * 2 + 20000 }]);
+          showToast(`"${prod.name}" berhasil ditambahkan ke keranjang sewa!`);
+        };
+
+        const handleCheckoutSubmit = () => {
+          if (cart.length === 0) return;
+          const newOrdersList = cart.map(c => ({
+            id: `ORD-${Date.now()}-${Math.floor(Math.random()*10)}`,
+            productName: c.product.name,
+            productImage: c.product.image,
+            renterName,
+            renterPhone,
+            storeName: c.product.storeName,
+            startDate: '2026-08-15',
+            endDate: '2026-08-17',
+            daysCount: 2,
+            totalPrice: c.totalPrice,
+            deliveryMethod,
+            deliveryAddress: landAddress,
+            paymentMethod,
+            status: 'Menunggu Konfirmasi',
+            createdAt: new Date().toLocaleString('id-ID')
+          }));
+
+          setOrders([...newOrdersList, ...orders]);
+          setCart([]);
+          setCurrentView('orders');
+          showToast('🎉 Pesanan Sewa Berhasil Dibuat! Pengelola poktan akan segera mengonfirmasi.');
+        };
+
+        const handleOrderStatusChange = (orderId, newStatus, prodName) => {
+          setOrders(orders.map(o => o.id === orderId ? { ...o, status: newStatus } : o));
+          if (newStatus === 'Sedang Disewa') {
+            setProducts(products.map(p => p.name === prodName ? { ...p, status: 'Dipinjam' } : p));
+            showToast('Pesanan disetujui! Status alat diperbarui menjadi "Sedang Dipinjam".');
+          } else if (newStatus === 'Selesai') {
+            setProducts(products.map(p => p.name === prodName ? { ...p, status: 'Tersedia' } : p));
+            showToast('Alat telah dikembalikan! Status alat kembali "Tersedia" & omset tercatat.');
+          }
+        };
+
+        const handleAddProductSubmit = (e) => {
+          e.preventDefault();
+          if (!newProdName.trim()) return;
+          const newP = {
+            id: `prod-${Date.now()}`,
+            name: newProdName,
+            category: newProdCat,
+            pricePerDay: Number(newProdPrice),
+            unit: 'hari',
+            image: newProdImg,
+            status: 'Tersedia',
+            rating: 5.0,
+            rentedCount: 0,
+            storeName: 'Kelompok Tani Makmur Sembada',
+            location: 'Sleman, DI Yogyakarta',
+            description: 'Unit alsintan terawat, siap pakai untuk olah tanah lahan pertanian.'
+          };
+          setProducts([newP, ...products]);
+          setShowAddProductModal(false);
+          setNewProdName('');
+          showToast(`Alat "${newP.name}" berhasil ditayangkan di marketplace!`);
+        };
+
+        const filteredProds = products.filter(p => {
+          const matchSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase()) || p.storeName.toLowerCase().includes(searchQuery.toLowerCase());
+          const matchCat = selectedCategory === 'all' || p.category === selectedCategory;
+          return matchSearch && matchCat;
+        });
+
+        const totalStoreRevenue = orders.filter(o => o.status === 'Selesai' || o.status === 'Sedang Disewa').reduce((a, b) => a + b.totalPrice, 0) + 8450000;
+
+        return (
+          <div className="app-container">
+            {/* SHOPEE STYLE HEADER */}
+            <header style={{ background: '#15803d', color: 'white', position: 'sticky', top: 0, zIndex: 99, boxShadow: '0 2px 10px rgba(0,0,0,0.15)' }}>
+              {/* Top Sub Header */}
+              <div style={{ background: '#0f172a', color: '#94a3b8', fontSize: '0.75rem', padding: '0.35rem 1rem', borderBottom: '1px solid #1e293b' }}>
+                <div style={{ maxWidth: 1280, margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span>📞 Layanan Bantuan Kelompok Tani: 0812-9876-5432 (DI Yogyakarta & Jawa Tengah)</span>
+                  <button
+                    onClick={() => {
+                      const next = activeRole === 'renter' ? 'seller' : 'renter';
+                      setActiveRole(next);
+                      setCurrentView(next === 'seller' ? 'seller-dashboard' : 'home');
+                      showToast(`Beralih ke mode ${next === 'seller' ? 'Penjual (Toko Saya 🏪)' : 'Penyewa (Petani 🌾)'}`);
+                    }}
+                    style={{
+                      background: activeRole === 'seller' ? '#ea580c' : '#16a34a',
+                      color: 'white', border: 'none', padding: '0.25rem 0.75rem', borderRadius: 999, fontWeight: 700, fontSize: '0.72rem', cursor: 'pointer'
+                    }}
+                  >
+                    {activeRole === 'renter' ? '🏪 Beralih ke Toko Saya (Penjual)' : '🌾 Beralih ke Mode Penyewa (Petani)'}
+                  </button>
+                </div>
+              </div>
+
+              {/* Main Nav Header */}
+              <div style={{ padding: '0.85rem 1rem' }}>
+                <div style={{ maxWidth: 1280, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1.5rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer' }} onClick={() => setCurrentView(activeRole === 'seller' ? 'seller-dashboard' : 'home')}>
+                    <span style={{ fontSize: '2rem', background: 'rgba(255,255,255,0.2)', padding: '0.2rem 0.5rem', borderRadius: 10 }}>🌾</span>
+                    <div>
+                      <h1 style={{ fontSize: '1.5rem', fontWeight: 800, margin: 0, lineHeight: 1, letterSpacing: '-0.02em' }}>AlatTani</h1>
+                      <small style={{ color: '#bbf7d0', fontSize: '0.7rem' }}>
+                        {activeRole === 'seller' ? 'Shopee Seller Center' : 'Marketplace Sewa Alsintan'}
+                      </small>
+                    </div>
+                  </div>
+
+                  {activeRole === 'renter' && (
+                    <div style={{ flex: 1, maxWidth: 500, display: 'flex', background: 'white', borderRadius: 8, padding: 2, overflow: 'hidden' }}>
+                      <input
+                        type="text"
+                        placeholder="Cari traktor, pompa air, cultivator, harvester..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        style={{ flex: 1, border: 'none', outline: 'none', padding: '0.6rem 1rem', fontSize: '0.875rem', color: '#0f172a' }}
+                      />
+                      <button style={{ background: '#ea580c', color: 'white', border: 'none', padding: '0 1.25rem', borderRadius: 6, fontWeight: 700, cursor: 'pointer' }}>
+                        Cari
+                      </button>
+                    </div>
+                  )}
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                    {activeRole === 'renter' ? (
+                      <>
+                        <button className="btn btn-outline btn-sm" onClick={() => setCurrentView('orders')} style={{ position: 'relative' }}>
+                          📋 Pesanan Saya
+                          {orders.length > 0 && <span style={{ background: '#ea580c', color: 'white', borderRadius: 999, padding: '1px 6px', fontSize: '0.65rem', marginLeft: 4 }}>{orders.length}</span>}
+                        </button>
+                        <button className="btn btn-accent btn-sm" onClick={() => setCurrentView('cart')} style={{ position: 'relative' }}>
+                          🛒 Keranjang
+                          {cart.length > 0 && <span style={{ background: '#16a34a', color: 'white', borderRadius: 999, padding: '1px 6px', fontSize: '0.65rem', marginLeft: 4 }}>{cart.length}</span>}
+                        </button>
+                      </>
+                    ) : (
+                      <span style={{ fontSize: '0.85rem', fontWeight: 700, background: 'rgba(255,255,255,0.18)', padding: '0.4rem 0.85rem', borderRadius: 8 }}>
+                        🏪 Kelompok Tani Makmur Sembada
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </header>
+
+            {/* MAIN CONTENT AREA */}
+            <main className="main-content">
+              {activeRole === 'renter' ? (
+                <>
+                  {/* RENTER HOME VIEW */}
+                  {currentView === 'home' && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.75rem' }}>
+                      {/* Hero Banner */}
+                      <div style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)', color: 'white', padding: '2rem 2.5rem', borderRadius: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div>
+                          <span style={{ background: 'rgba(34,197,94,0.2)', border: '1px solid rgba(34,197,94,0.4)', color: '#4ade80', padding: '0.35rem 0.85rem', borderRadius: 999, fontSize: '0.8rem', fontWeight: 700 }}>
+                            ✨ Rent-Commerce Alat Pertanian Terpadu
+                          </span>
+                          <h2 style={{ fontSize: '2rem', fontWeight: 800, margin: '0.75rem 0 0.5rem 0' }}>Sewa Alat & Mesin Pertanian Lengkap</h2>
+                          <p style={{ color: '#94a3b8', maxWidth: 540, fontSize: '0.95rem' }}>
+                            Dapatkan traktor, pompa air, cultivator, hingga mesin panen dari kelompok tani terdekat. 
+                            Proses cepat, tarif terjangkau, alat siap kerja di lahan Anda.
+                          </p>
+                        </div>
+                        <div style={{ fontSize: '4.5rem', background: 'rgba(255,255,255,0.1)', padding: '1rem', borderRadius: 20 }}>🚜</div>
+                      </div>
+
+                      {/* Category Pills */}
+                      <div>
+                        <h3 style={{ fontSize: '1.15rem', fontWeight: 800, marginBottom: '0.75rem' }}>Kategori Alsintan</h3>
+                        <div style={{ display: 'flex', gap: '0.75rem', overflowX: 'auto', paddingBottom: '0.5rem' }}>
+                          {INITIAL_CATEGORIES.map(cat => (
+                            <button
+                              key={cat.id}
+                              onClick={() => setSelectedCategory(cat.id)}
+                              style={{
+                                padding: '0.6rem 1.1rem', borderRadius: 999, border: '1px solid #cbd5e1',
+                                background: selectedCategory === cat.id ? '#16a34a' : 'white',
+                                color: selectedCategory === cat.id ? 'white' : '#475569',
+                                fontWeight: 700, fontSize: '0.875rem', cursor: 'pointer', whiteSpace: 'nowrap'
+                              }}
+                            >
+                              {cat.icon} {cat.name}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Product Grid */}
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1.5rem' }}>
+                        {filteredProds.map(prod => (
+                          <div key={prod.id} className="card card-hover" style={{ display: 'flex', flexDirection: 'column', cursor: 'pointer' }} onClick={() => setSelectedProdModal(prod)}>
+                            <div style={{ height: 185, position: 'relative', background: '#f1f5f9' }}>
+                              <img src={prod.image} alt={prod.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                              <span style={{
+                                position: 'absolute', top: 10, left: 10,
+                                background: prod.status === 'Tersedia' ? 'rgba(220,252,231,0.95)' : 'rgba(254,243,199,0.95)',
+                                color: prod.status === 'Tersedia' ? '#15803d' : '#b45309',
+                                padding: '0.25rem 0.65rem', borderRadius: 999, fontSize: '0.72rem', fontWeight: 800
+                              }}>
+                                ● {prod.status}
+                              </span>
+                              <span style={{ position: 'absolute', bottom: 10, right: 10, background: 'rgba(15,23,42,0.75)', color: 'white', padding: '0.2rem 0.5rem', borderRadius: 4, fontSize: '0.68rem', fontWeight: 600 }}>
+                                {prod.rentedCount}x Disewa
+                              </span>
+                            </div>
+
+                            <div style={{ padding: '1.1rem', flex: 1, display: 'flex', flexDirection: 'column' }}>
+                              <small style={{ color: '#64748b', fontSize: '0.75rem', marginBottom: '0.25rem' }}>🏪 {prod.storeName}</small>
+                              <h3 style={{ fontSize: '0.975rem', fontWeight: 800, color: '#0f172a', lineHeight: 1.35, marginBottom: '0.5rem' }}>{prod.name}</h3>
+                              <p style={{ fontSize: '0.78rem', color: '#64748b', marginBottom: '1rem', flex: 1, height: '2.4rem', overflow: 'hidden' }}>{prod.description}</p>
+                              
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #f1f5f9', paddingTop: '0.75rem' }}>
+                                <div>
+                                  <span style={{ fontSize: '1.15rem', fontWeight: 800, color: '#ea580c' }}>
+                                    Rp {prod.pricePerDay.toLocaleString('id-ID')}
+                                  </span>
+                                  <small style={{ color: '#94a3b8', fontSize: '0.72rem' }}> / hari</small>
+                                </div>
+
+                                <button
+                                  className="btn btn-accent btn-sm"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleAddToCart(prod);
+                                  }}
+                                >
+                                  Sewa Alat
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* RENTER CART CHECKOUT VIEW */}
+                  {currentView === 'cart' && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                      <h2>🛒 Checkout Penyewaan Alat Pertanian</h2>
+                      
+                      {cart.length === 0 ? (
+                        <div className="card" style={{ padding: '4rem', textAling: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
+                          <span style={{ fontSize: '3.5rem' }}>🛒</span>
+                          <h3>Keranjang Sewa Anda Masih Kosong</h3>
+                          <button className="btn btn-primary" onClick={() => setCurrentView('home')}>Jelajahi Katalog Alsintan</button>
+                        </div>
+                      ) : (
+                        <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '1.5rem' }}>
+                          {/* Left: Cart Items & Delivery Info */}
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                            <div className="card" style={{ padding: '1.5rem' }}>
+                              <h3 style={{ marginBottom: '1rem' }}>Daftar Alat yang Disewa ({cart.length})</h3>
+                              {cart.map((item, idx) => (
+                                <div key={idx} style={{ display: 'flex', gap: '1rem', borderBottom: '1px solid #f1f5f9', paddingBottom: '1rem', marginBottom: '1rem', alignItems: 'center' }}>
+                                  <img src={item.product.image} style={{ width: 75, height: 75, objectFit: 'cover', borderRadius: 8 }} />
+                                  <div style={{ flex: 1 }}>
+                                    <small style={{ color: '#16a34a', fontWeight: 700 }}>🏪 {item.product.storeName}</small>
+                                    <h4 style={{ fontSize: '0.95rem', fontWeight: 700 }}>{item.product.name}</h4>
+                                    <small style={{ color: '#64748b' }}>📅 Estimasi 2 Hari Sewa</small>
+                                  </div>
+                                  <strong style={{ color: '#ea580c', fontSize: '1.1rem' }}>Rp {item.totalPrice.toLocaleString('id-ID')}</strong>
+                                </div>
+                              ))}
+                            </div>
+
+                            <div className="card" style={{ padding: '1.5rem' }}>
+                              <h3 style={{ marginBottom: '1rem' }}>📍 Informasi Penyewa & Lokasi Lahan</h3>
+                              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                                <div className="form-group">
+                                  <label>Nama Lengkap Petani / Peminjam *</label>
+                                  <input type="text" value={renterName} onChange={e => setRenterName(e.target.value)} className="form-input" />
+                                </div>
+                                <div className="form-group">
+                                  <label>Nomor WhatsApp Aktif *</label>
+                                  <input type="text" value={renterPhone} onChange={e => setRenterPhone(e.target.value)} className="form-input" />
+                                </div>
+                                <div className="form-group">
+                                  <label>Lokasi / Alamat Lahan Pertanian *</label>
+                                  <textarea value={landAddress} onChange={e => setLandAddress(e.target.value)} className="form-textarea" rows={2} />
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Right: Payment & Grand Total */}
+                          <div className="card" style={{ padding: '1.5rem', height: 'fit-content' }}>
+                            <h3 style={{ marginBottom: '1rem' }}>💳 Pembayaran & Ringkasan</h3>
+                            
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1.5rem' }}>
+                              <label style={{ padding: '0.6rem', border: '1px solid #16a34a', borderRadius: 8, background: '#f0fdf4', fontSize: '0.85rem', fontWeight: 700, color: '#15803d' }}>
+                                🏦 Transfer Bank BRI (Rekening Poktan)
+                              </label>
+                              <label style={{ padding: '0.6rem', border: '1px solid #e2e8f0', borderRadius: 8, fontSize: '0.85rem', color: '#475569' }}>
+                                💵 Cash / Bayar di Lahan (COD)
+                              </label>
+                            </div>
+
+                            <div style={{ borderTop: '1px solid #e2e8f0', paddingTop: '1rem', marginBottom: '1.5rem' }}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', fontSize: '0.9rem' }}>
+                                <span>Subtotal Biaya Sewa:</span>
+                                <strong>Rp {cart.reduce((a,b)=>a+b.totalPrice,0).toLocaleString('id-ID')}</strong>
+                              </div>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', fontSize: '0.9rem' }}>
+                                <span>Biaya Pengantaran Lahan:</span>
+                                <span>Rp 20.000</span>
+                              </div>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid #e2e8f0', paddingTop: '0.75rem', marginTop: '0.5rem' }}>
+                                <strong style={{ fontSize: '1rem' }}>Total Tagihan:</strong>
+                                <strong style={{ fontSize: '1.3rem', color: '#ea580c' }}>
+                                  Rp {(cart.reduce((a,b)=>a+b.totalPrice,0) + 20000).toLocaleString('id-ID')}
+                                </strong>
+                              </div>
+                            </div>
+
+                            <button className="btn btn-accent btn-lg" style={{ width: '100%' }} onClick={handleCheckoutSubmit}>
+                              Konfirmasi & Buat Pesanan Sewa
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* RENTER ORDERS VIEW */}
+                  {currentView === 'orders' && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                      <h2>📋 Status & Riwayat Pesanan Sewa Saya</h2>
+                      <div className="card" style={{ padding: '1.5rem' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                          {orders.map(ord => (
+                            <div key={ord.id} style={{ border: '1px solid #e2e8f0', borderRadius: 12, padding: '1.25rem' }}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #f1f5f9', paddingBottom: '0.75rem', marginBottom: '0.85rem' }}>
+                                <strong>🏪 {ord.storeName}</strong>
+                                <span style={{
+                                  background: ord.status === 'Menunggu Konfirmasi' ? '#fef3c7' : ord.status === 'Sedang Disewa' ? '#e0f2fe' : '#dcfce7',
+                                  color: ord.status === 'Menunggu Konfirmasi' ? '#b45309' : ord.status === 'Sedang Disewa' ? '#0369a1' : '#15803d',
+                                  padding: '0.25rem 0.75rem', borderRadius: 999, fontWeight: 800, fontSize: '0.75rem'
+                                }}>
+                                  ● {ord.status}
+                                </span>
+                              </div>
+
+                              <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                                <img src={ord.productImage} style={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 8 }} />
+                                <div style={{ flex: 1 }}>
+                                  <small style={{ color: '#94a3b8' }}>ID: #{ord.id}</small>
+                                  <h3 style={{ fontSize: '1.05rem', fontWeight: 800 }}>{ord.productName}</h3>
+                                  <p style={{ fontSize: '0.8rem', color: '#64748b' }}>📅 Durasi: {ord.daysCount} Hari ({ord.startDate} s/d {ord.endDate})</p>
+                                  <p style={{ fontSize: '0.8rem', color: '#64748b' }}>📍 Lokasi Lahan: {ord.deliveryAddress}</p>
+                                </div>
+                                <div style={{ textAlign: 'right' }}>
+                                  <small style={{ color: '#64748b' }}>Total Biaya</small>
+                                  <h3 style={{ fontSize: '1.25rem', color: '#ea580c', fontWeight: 800 }}>Rp {ord.totalPrice.toLocaleString('id-ID')}</h3>
+                                  <button className="btn btn-outline btn-sm" style={{ marginTop: '0.5rem' }} onClick={() => setSelectedInvoice(ord)}>
+                                    Lihat Struk Digital
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </>
+              ) : (
+                /* SHOPEE SELLER CENTER VIEW */
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                  {/* Store Profile Header */}
+                  <div className="card" style={{ background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)', color: 'white', padding: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div>
+                      <span style={{ background: 'rgba(234,88,12,0.2)', color: '#ea580c', padding: '0.2rem 0.6rem', borderRadius: 4, fontSize: '0.7rem', fontWeight: 800 }}>
+                        SHOPEE SELLER CENTER - ALATTANI
+                      </span>
+                      <h2 style={{ fontSize: '1.6rem', fontWeight: 800, marginTop: '0.35rem' }}>Kelompok Tani Makmur Sembada</h2>
+                      <p style={{ color: '#94a3b8', fontSize: '0.85rem' }}>📍 Sleman, DI Yogyakarta • 📞 0812-9876-5432 • ⭐ Rating 4.9 / 5.0</p>
+                    </div>
+                    <button className="btn btn-accent" onClick={() => setShowAddProductModal(true)}>
+                      + Tambah Alat Sewa Baru
+                    </button>
+                  </div>
+
+                  {/* KPI Cards */}
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.25rem' }}>
+                    <div className="card" style={{ padding: '1.25rem' }}>
+                      <small style={{ color: '#64748b', fontWeight: 600 }}>Total Omset Pendapatan</small>
+                      <h3 style={{ fontSize: '1.4rem', fontWeight: 800, color: '#16a34a', marginTop: '0.25rem' }}>Rp {totalStoreRevenue.toLocaleString('id-ID')}</h3>
+                    </div>
+                    <div className="card" style={{ padding: '1.25rem' }}>
+                      <small style={{ color: '#64748b', fontWeight: 600 }}>Pesanan Masuk Perlu Diproses</small>
+                      <h3 style={{ fontSize: '1.4rem', fontWeight: 800, color: '#ea580c', marginTop: '0.25rem' }}>{orders.filter(o => o.status === 'Menunggu Konfirmasi').length} Transaksi</h3>
+                    </div>
+                    <div className="card" style={{ padding: '1.25rem' }}>
+                      <small style={{ color: '#64748b', fontWeight: 600 }}>Alat Sedang Disewa</small>
+                      <h3 style={{ fontSize: '1.4rem', fontWeight: 800, color: '#0284c7', marginTop: '0.25rem' }}>{products.filter(p => p.status === 'Dipinjam').length} Unit</h3>
+                    </div>
+                    <div className="card" style={{ padding: '1.25rem' }}>
+                      <small style={{ color: '#64748b', fontWeight: 600 }}>Total Aset Alsintan</small>
+                      <h3 style={{ fontSize: '1.4rem', fontWeight: 800, color: '#334155', marginTop: '0.25rem' }}>{products.length} Unit</h3>
+                    </div>
+                  </div>
+
+                  {/* Seller Tabs */}
+                  <div className="card" style={{ padding: '1.5rem' }}>
+                    <div style={{ display: 'flex', gap: '1rem', borderBottom: '2px solid #e2e8f0', paddingBottom: '0.75rem', marginBottom: '1.25rem' }}>
+                      <button 
+                        onClick={() => setSellerTab('orders')}
+                        style={{ background: 'none', border: 'none', fontSize: '1rem', fontWeight: 800, color: sellerTab === 'orders' ? '#ea580c' : '#64748b', cursor: 'pointer' }}
+                      >
+                        📋 Kelola Pesanan Masuk ({orders.length})
+                      </button>
+                      <button 
+                        onClick={() => setSellerTab('inventory')}
+                        style={{ background: 'none', border: 'none', fontSize: '1rem', fontWeight: 800, color: sellerTab === 'inventory' ? '#ea580c' : '#64748b', cursor: 'pointer' }}
+                      >
+                        🚜 Inventaris Aset Alat ({products.length})
+                      </button>
+                    </div>
+
+                    {sellerTab === 'orders' ? (
+                      <div className="table-responsive">
+                        <table className="seller-table">
+                          <thead>
+                            <tr>
+                              <th>ID</th>
+                              <th>Peminjam</th>
+                              <th>Alat Pertanian</th>
+                              <th>Durasi</th>
+                              <th>Total Biaya</th>
+                              <th>Status</th>
+                              <th>Aksi Pengelola</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {orders.map(ord => (
+                              <tr key={ord.id}>
+                                <td><strong>#{ord.id}</strong></td>
+                                <td>{ord.renterName}</td>
+                                <td>{ord.productName}</td>
+                                <td>{ord.startDate} s/d {ord.endDate}</td>
+                                <td><strong style={{ color: '#ea580c' }}>Rp {ord.totalPrice.toLocaleString('id-ID')}</strong></td>
+                                <td><span style={{ fontWeight: 700 }}>{ord.status}</span></td>
+                                <td>
+                                  {ord.status === 'Menunggu Konfirmasi' && (
+                                    <button className="btn btn-primary btn-sm" onClick={() => handleOrderStatusChange(ord.id, 'Sedang Disewa', ord.productName)}>
+                                      Terima & Disewa
+                                    </button>
+                                  )}
+                                  {ord.status === 'Sedang Disewa' && (
+                                    <button className="btn btn-secondary btn-sm" onClick={() => handleOrderStatusChange(ord.id, 'Selesai', ord.productName)}>
+                                      Tandai Selesai (Kembalikan Alat)
+                                    </button>
+                                  )}
+                                  {ord.status === 'Selesai' && <small style={{ color: '#16a34a', fontWeight: 700 }}>✓ Transaksi Selesai</small>}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    ) : (
+                      <div className="table-responsive">
+                        <table className="seller-table">
+                          <thead>
+                            <tr>
+                              <th>Nama Alsintan</th>
+                              <th>Kategori</th>
+                              <th>Tarif / Hari</th>
+                              <th>Disewa</th>
+                              <th>Status Operasional</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {products.map(p => (
+                              <tr key={p.id}>
+                                <td><strong>{p.name}</strong></td>
+                                <td>{p.category}</td>
+                                <td><strong style={{ color: '#ea580c' }}>Rp {p.pricePerDay.toLocaleString('id-ID')}</strong></td>
+                                <td>{p.rentedCount} kali</td>
+                                <td>
+                                  <select
+                                    value={p.status}
+                                    onChange={(e) => setProducts(products.map(x => x.id === p.id ? { ...x, status: e.target.value } : x))}
+                                    style={{ padding: '0.3rem', borderRadius: 6, fontWeight: 700 }}
+                                  >
+                                    <option value="Tersedia">Tersedia</option>
+                                    <option value="Dipinjam">Sedang Dipinjam</option>
+                                    <option value="Perawatan">Dalam Perawatan</option>
+                                  </select>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </main>
+
+            {/* PRODUCT DETAIL MODAL */}
+            {selectedProdModal && (
+              <div className="modal-overlay" onClick={() => setSelectedProdModal(null)}>
+                <div className="modal-content" onClick={e => e.stopPropagation()} style={{ padding: '2rem' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '0.9fr 1.1fr', gap: '1.5rem' }}>
+                    <img src={selectedProdModal.image} style={{ width: '100%', height: 220, objectFit: 'cover', borderRadius: 12 }} />
+                    <div>
+                      <small style={{ color: '#16a34a', fontWeight: 800 }}>{selectedProdModal.category.toUpperCase()}</small>
+                      <h2 style={{ fontSize: '1.3rem', fontWeight: 800, margin: '0.25rem 0' }}>{selectedProdModal.name}</h2>
+                      <p style={{ fontSize: '0.8rem', color: '#64748b', marginBottom: '1rem' }}>🏪 {selectedProdModal.storeName} • 📍 {selectedProdModal.location}</p>
+                      
+                      <div style={{ background: '#fff7ed', padding: '0.75rem 1rem', borderRadius: 8, marginBottom: '1rem', border: '1px dashed #fdba74' }}>
+                        <span style={{ fontSize: '0.8rem', color: '#c2410c' }}>Tarif Sewa: </span>
+                        <strong style={{ fontSize: '1.4rem', color: '#ea580c' }}>Rp {selectedProdModal.pricePerDay.toLocaleString('id-ID')}</strong>
+                        <small style={{ color: '#9a3412' }}> / hari</small>
+                      </div>
+
+                      <p style={{ fontSize: '0.825rem', color: '#475569', marginBottom: '1.25rem' }}>{selectedProdModal.description}</p>
+
+                      <div style={{ display: 'flex', gap: '0.75rem' }}>
+                        <button className="btn btn-secondary flex-1" onClick={() => { handleAddToCart(selectedProdModal); setSelectedProdModal(null); }}>
+                          + Keranjang Sewa
+                        </button>
+                        <button className="btn btn-accent flex-1" onClick={() => { handleAddToCart(selectedProdModal); setSelectedProdModal(null); setCurrentView('cart'); }}>
+                          Sewa Sekarang
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* INVOICE MODAL */}
+            {selectedInvoice && (
+              <div className="modal-overlay" onClick={() => setSelectedInvoice(null)}>
+                <div className="modal-content" onClick={e => e.stopPropagation()} style={{ padding: '2rem' }}>
+                  <h2>🌾 Struk Penyewaan AlatTani</h2>
+                  <hr style={{ margin: '1rem 0' }} />
+                  <p><strong>ID Transaksi:</strong> #{selectedInvoice.id}</p>
+                  <p><strong>Penyewa:</strong> {selectedInvoice.renterName} ({selectedInvoice.renterPhone})</p>
+                  <p><strong>Penyedia / Poktan:</strong> {selectedInvoice.storeName}</p>
+                  <p><strong>Alat Pertanian:</strong> {selectedInvoice.productName}</p>
+                  <p><strong>Durasi:</strong> {selectedInvoice.startDate} s/d {selectedInvoice.endDate} ({selectedInvoice.daysCount} Hari)</p>
+                  <p><strong>Total Tagihan:</strong> <strong style={{ color: '#ea580c' }}>Rp {selectedInvoice.totalPrice.toLocaleString('id-ID')}</strong></p>
+                  <div style={{ marginTop: '1.5rem', textAlign: 'right' }}>
+                    <button className="btn btn-outline" onClick={() => setSelectedInvoice(null)}>Tutup</button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* ADD PRODUCT MODAL */}
+            {showAddProductModal && (
+              <div className="modal-overlay" onClick={() => setShowAddProductModal(false)}>
+                <div className="modal-content" onClick={e => e.stopPropagation()} style={{ padding: '2rem' }}>
+                  <h2>🚜 Tambah Alat Pertanian Baru ke Toko</h2>
+                  <form onSubmit={handleAddProductSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '1rem' }}>
+                    <div className="form-group">
+                      <label>Nama Alat & Mesin Pertanian *</label>
+                      <input type="text" value={newProdName} onChange={e => setNewProdName(e.target.value)} className="form-input" required placeholder="Contoh: Traktor Quick G3000 Zeva" />
+                    </div>
+                    <div className="form-group">
+                      <label>Tarif Sewa per Hari (Rp) *</label>
+                      <input type="number" value={newProdPrice} onChange={e => setNewProdPrice(e.target.value)} className="form-input" required />
+                    </div>
+                    <div className="form-group">
+                      <label>URL Foto Alat *</label>
+                      <input type="url" value={newProdImg} onChange={e => setNewProdImg(e.target.value)} className="form-input" required />
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem', marginTop: '1rem' }}>
+                      <button type="button" className="btn btn-outline" onClick={() => setShowAddProductModal(false)}>Batal</button>
+                      <button type="submit" className="btn btn-accent">Simpan & Tayangkan</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            )}
+
+            {/* TOAST NOTIFICATION */}
+            {toastMsg && (
+              <div className="toast-container">
+                <div className="toast">
+                  <span>✅ {toastMsg}</span>
+                </div>
+              </div>
+            )}
+
+            {/* FOOTER */}
+            <footer style={{ background: '#0f172a', color: '#94a3b8', padding: '2.5rem 1rem 1.5rem 1rem', marginTop: '3rem', borderTop: '4px solid #16a34a' }}>
+              <div style={{ maxWidth: 1280, margin: '0 auto', textAlign: 'center', fontSize: '0.85rem' }}>
+                <h3 style={{ color: 'white', fontSize: '1.2rem', marginBottom: '0.5rem' }}>🌾 AlatTani Marketplace</h3>
+                <p>Ekosistem E-Commerce Penyewaan Alat & Mesin Pertanian (*Alsintan*) Terpadu Indonesia.</p>
+                <p style={{ color: '#64748b', fontSize: '0.78rem', marginTop: '1rem' }}>© 2026 AlatTani Inc. Seluruh Hak Cipta Dilindungi Undang-Undang.</p>
+              </div>
+            </footer>
+          </div>
+        );
+      }
+
+      ReactDOM.createRoot(document.getElementById('root')).render(<AlatTaniApp />);
+    </script>
+  </body>
+</html>
